@@ -1,0 +1,6 @@
+.idea/
+*.yaml
+*.yml
+*.vsidx
+*.sqllite
+.vs/
