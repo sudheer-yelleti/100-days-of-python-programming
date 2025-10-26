@@ -9,6 +9,3 @@ def format_name(f_name, l_name):
 formatted_name = format_name("AnGeLa", "YU")
 
 length = len(formatted_name)
-
-
-
