@@ -1,7 +1,5 @@
 import random
-from random import shuffle
 from turtle import Turtle, Screen
-import tkinter
 
 colors = ["violet", "indigo", "blue", "green", "yellow", "orange", "red"]
 turtle_objects = []
