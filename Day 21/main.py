@@ -13,7 +13,7 @@ root.destroy()
 
 screen = Screen()
 screen.setup(width=screen_width, height=screen_height)
-print(screen_width, screen_height)
+
 screen.bgcolor("black")
 screen.title("My Snake Game")
 screen.tracer(0)
