@@ -1,4 +1,5 @@
 import random
+
 friends = ["Alice", "Bob", "Charlie", "David", "Emanuel"]
 
 # 1st Option

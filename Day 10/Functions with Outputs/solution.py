@@ -17,4 +17,3 @@ def function_2(text):
 
 output = function_2(function_1("hello"))
 print(output)
-

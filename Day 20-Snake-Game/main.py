@@ -1,6 +1,7 @@
 import time
-from snake import Snake
 from turtle import Screen
+
+from snake import Snake
 
 screen = Screen()
 screen_height = screen.window_height()

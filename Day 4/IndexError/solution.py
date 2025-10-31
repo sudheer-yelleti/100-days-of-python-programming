@@ -13,7 +13,6 @@ print(states_of_america[50])  # IndexError
 num_states = len(states_of_america)
 print(states_of_america[num_states - 1])
 
-
 # dirty_dozen = ["Strawberries", "Spinach", "Kale", "Nectarines", "Apples", "Grapes", "Peaches", "Cherries", "Pears",
 # "Tomatoes", "Celery", "Potatoes"]
 

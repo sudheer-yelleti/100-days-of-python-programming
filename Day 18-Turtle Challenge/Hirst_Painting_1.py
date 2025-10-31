@@ -1,7 +1,7 @@
 import random
+import turtle as t
 
 import colorgram
-import turtle as t
 
 # Extract 5 colors from the image
 colors = colorgram.extract('image.jpg', 30)

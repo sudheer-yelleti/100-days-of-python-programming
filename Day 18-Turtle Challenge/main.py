@@ -1,7 +1,7 @@
 # https://docs.python.org/3/contents.html
 
-from turtle import Turtle, Screen
 import random
+from turtle import Turtle, Screen
 
 colors = ["red", "green", "blue", "yellow", "orange", "purple", "brown", "pink", "cyan", "black"]
 screen = Screen()

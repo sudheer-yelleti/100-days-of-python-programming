@@ -1,18 +1,15 @@
 import time
-import tkinter as tk
 from turtle import Screen
 
 from food import Food
 from scoreboard import Scoreboard
 from snake import Snake
 
-root = tk.Tk()
-screen_height = root.winfo_screenheight()
-screen_width = root.winfo_screenwidth()
-root.destroy()
+screen_height = 600
+screen_width = 600
 
 screen = Screen()
-screen.setup(width=screen_width, height=screen_height)
+screen.setup(width=600, height=600)
 
 screen.bgcolor("black")
 screen.title("My Snake Game")
@@ -42,15 +39,15 @@ while is_game_on:
 
     # Detect collision with the wall.
     if (snake.head.xcor() >= screen_width / 2 or snake.head.xcor() <= -(screen_width / 2)):
-        is_game_on = False
-        scoreboard.game_over()
+        scoreboard.reset_score()
+        snake.reset_snake()
     elif (snake.head.ycor() >= screen_height / 2 or snake.head.ycor() <= -(screen_height / 2)):
-        is_game_on = False
-        scoreboard.game_over()
-    # Detect collision with the snake's tail.
+        scoreboard.reset_score()
+        snake.reset_snake()
+        # Detect collision with the snake's tail.
     for snake_segment in snake.turtle_objects[1:]:
         if snake.head.distance(snake_segment) < 10:
-            is_game_on = False
-            scoreboard.game_over()
+            scoreboard.reset_score()
+            snake.reset_snake()
 
 screen.exitonclick()

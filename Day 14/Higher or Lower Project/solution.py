@@ -1,7 +1,8 @@
 # Display art
+import random
+
 from art import logo, vs
 from game_data import data
-import random
 
 
 def format_data(account):
@@ -62,5 +63,3 @@ while game_should_continue:
     else:
         print(f"Sorry, that's wrong. Final score: {score}.")
         game_should_continue = False
-
-

@@ -1,6 +1,6 @@
+import random
 import turtle
 from turtle import Turtle, Screen
-import random
 
 
 def random_color():
