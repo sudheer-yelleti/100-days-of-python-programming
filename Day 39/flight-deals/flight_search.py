@@ -15,6 +15,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
+
 class FlightSearch:
     # This class is responsible for talking to the Flight Search API.
     def __init__(self):
@@ -82,7 +83,7 @@ class FlightSearch:
                         offer_price = float(offer["price"]["grandTotal"])
                         if offer_price <= min_price:
                             min_price = offer_price
-
+                    item["lowestPrice"] = min_price
                     logging.info(f"Lowest price for {item['city']} is {min_price}")
                 else:
                     logging.error(f"No offers found for {item['city']}")

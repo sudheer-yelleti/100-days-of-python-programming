@@ -1,4 +1,6 @@
 # This file will need to use the DataManager, FlightSearch, FlightData, NotificationManager classes to achieve the program requirements.
+from pprint import pprint
+
 from data_manager import DataManager
 from flight_data import FlightData
 from flight_search import FlightSearch
@@ -34,6 +36,7 @@ class FlightDealFinder:
 
         # self.data_manager.update_iata_code(self.sheet_data)
         self.flight_search.get_flight_offers(self.sheet_data)
+        pprint(self.sheet_data)
 
 
 run = FlightDealFinder()
