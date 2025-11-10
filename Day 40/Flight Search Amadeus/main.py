@@ -39,6 +39,15 @@ for destination in sheet_data:
         from_time=tomorrow,
         to_time=six_month_from_today
     )
+    if flights is None or not flights['data']:
+        flights = flight_search.check_flights(
+            ORIGIN_CITY_IATA,
+            destination["IATA Code"],
+            from_time=tomorrow,
+            to_time=six_month_from_today,
+            is_Direct=str(False).lower()
+        )
+
     cheapest_flight = find_cheapest_flight(flights)
     print(f"{destination['City']}: £{cheapest_flight.price}")
 
@@ -50,8 +59,9 @@ for destination in sheet_data:
         #                  f"on {cheapest_flight.out_date} until {cheapest_flight.return_date}."
         # )
         # SMS not working? Try whatsapp instead.
-        notification_manager.send_whatsapp(
-            message_body=f"Low price alert! Only £{cheapest_flight.price} to fly "
-                         f"from {cheapest_flight.origin_airport} to {cheapest_flight.destination_airport}, "
-                         f"on {cheapest_flight.out_date} until {cheapest_flight.return_date}."
-        )
+        if 5 == 6:
+            notification_manager.send_whatsapp(
+                message_body=f"Low price alert! Only £{cheapest_flight.price} to fly "
+                             f"from {cheapest_flight.origin_airport} to {cheapest_flight.destination_airport}, "
+                             f"on {cheapest_flight.out_date} until {cheapest_flight.return_date}."
+            )
