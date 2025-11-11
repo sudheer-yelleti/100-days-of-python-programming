@@ -52,16 +52,16 @@ for destination in sheet_data:
     print(f"{destination['City']}: £{cheapest_flight.price}")
 
     if cheapest_flight.price != "N/A" and cheapest_flight.price < destination["Lowest Price"]:
-        print(f"Lower price flight found to {destination['City']}!")
-        # notification_manager.send_sms(
-        #     message_body=f"Low price alert! Only £{cheapest_flight.price} to fly "
-        #                  f"from {cheapest_flight.origin_airport} to {cheapest_flight.destination_airport}, "
-        #                  f"on {cheapest_flight.out_date} until {cheapest_flight.return_date}."
-        # )
-        # SMS not working? Try whatsapp instead.
-        if 5 == 6:
-            notification_manager.send_whatsapp(
-                message_body=f"Low price alert! Only £{cheapest_flight.price} to fly "
-                             f"from {cheapest_flight.origin_airport} to {cheapest_flight.destination_airport}, "
-                             f"on {cheapest_flight.out_date} until {cheapest_flight.return_date}."
-            )
+        email_list = data_manager.get_customer_emails()
+        if len(email_list) > 0:
+
+            if cheapest_flight.stops < 1:
+                subject = (
+                    f"Low price alert! Only GBP {cheapest_flight.price}to fly from London to {destination['City']}\n"
+                    f", departing on {cheapest_flight.out_date} and returning on {cheapest_flight.return_date}.")
+            else:
+                subject = (
+                    f"Low price alert! Only GBP {cheapest_flight.price} to fly from London to {destination['City']}\n"
+                    f", with {cheapest_flight.stops} stop(s) departing on {cheapest_flight.out_date} and returning on {cheapest_flight.return_date}.")
+            for email in email_list:
+                notification_manager.send_email(email, subject)

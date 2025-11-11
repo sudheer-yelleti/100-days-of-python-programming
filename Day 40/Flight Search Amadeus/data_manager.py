@@ -12,8 +12,6 @@ class DataManager:
 
     def __init__(self):
         self.destination_data = {}
-        global worksheet
-
         # Authenticate with Google Sheets using OAuth credentials
         gc = gspread.oauth()
 
@@ -23,11 +21,12 @@ class DataManager:
         )
 
         # Select the worksheet named 'prices' within the Google Sheet
-        worksheet = sh.worksheet("prices")
+        self.prices_worksheet = sh.worksheet("prices")
+        self.users_worksheet = sh.worksheet("users")
 
     def get_destination_data(self):
         # Fetch all records from the Google Sheet and convert them into a pandas DataFrame
-        dataframe = pandas.DataFrame(worksheet.get_all_records())
+        dataframe = pandas.DataFrame(self.prices_worksheet.get_all_records())
 
         # Convert the DataFrame into a list of dictionaries for easy iteration and data handling
         result = dataframe.to_dict(orient="records")
@@ -43,7 +42,6 @@ class DataManager:
         Converts the in-memory destination data (Python list of dicts)
         back into a DataFrame and overwrites the sheet with new values.
         """
-        global worksheet
 
         # Create a DataFrame with specific columns to ensure correct order and consistency
         dataframe = pandas.DataFrame(
@@ -57,9 +55,13 @@ class DataManager:
         # include_column_header=True → writes column names as headers
         # resize=True → adjusts the sheet size to fit the new data exactly
         gspread_dataframe.set_with_dataframe(
-            worksheet,
+            self.prices_worksheet,
             dataframe,
             include_index=False,
             include_column_header=True,
             resize=True
         )
+
+    def get_customer_emails(self):
+        emails = self.users_worksheet.col_values(4)[1:]  # Skip the header row
+        return emails
