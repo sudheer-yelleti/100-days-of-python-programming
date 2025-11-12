@@ -21,3 +21,4 @@ coverage/
 logs/
 npm-debug.log*
 .DS_Store
+.cache*
