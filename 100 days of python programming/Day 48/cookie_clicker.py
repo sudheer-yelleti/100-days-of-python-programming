@@ -12,14 +12,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 GAME_URL = "https://ozh.github.io/cookieclicker/"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
-TIME_INTERVAL_TO_CHECK_FOR_UPGRADE = 5  # Interval (in seconds) to check for available upgrades
+TIME_INTERVAL_TO_CHECK_FOR_UPGRADE = 10  # Interval (in seconds) to check for available upgrades
 
 
 def create_webdriver():
     """Initialize and return a Chrome WebDriver with a custom user-agent."""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_experimental_option("detach", True)
-    chrome_options.add_argument(f"user-agent={USER_AGENT}")
 
     driver = webdriver.Chrome(options=chrome_options)
 
@@ -54,7 +53,6 @@ while time.time() < end_time:
         # Click the main cookie
         cookie_button = browser.find_element(By.ID, "bigCookie")
         cookie_button.click()
-        time.sleep(0.001)  # 1 ms pause between clicks
 
         # Check for upgrades periodically
         if time.time() - last_upgrade_check_time > TIME_INTERVAL_TO_CHECK_FOR_UPGRADE:
@@ -67,28 +65,12 @@ while time.time() < end_time:
             product_price_elements = browser.find_elements(
                 By.CSS_SELECTOR, "div.product.unlocked.enabled span.price"
             )
-            current_cookies_element = browser.find_element(By.ID, "cookies")
 
-            # Extract numeric prices from elements
-            unlocked_upgrade_prices = [
-                int(element.text.replace(",", "")) for element in product_price_elements
-            ]
-            # max_price = max(unlocked_upgrade_prices)
-            current_cookies = int(current_cookies_element.text.replace(",", "").split(" ")[0])
+            upgrade_button = browser.find_element(
+                By.CSS_SELECTOR, f"div#product{len(product_price_elements) - 1}.product.unlocked.enabled"
+            )
+            upgrade_button.click()
 
-            affordable = [element for element in unlocked_upgrade_prices if element <= current_cookies]
-            print("affordable prices")
-            print(affordable)
-            if affordable:
-                max_price = max(affordable)
-
-                # Buy the most expensive upgrade we can afford
-                if current_cookies >= max_price:
-                    index = unlocked_upgrade_prices.index(max_price)
-                    upgrade_button = browser.find_element(
-                        By.CSS_SELECTOR, f"div#product{index}.product.unlocked.enabled"
-                    )
-                    upgrade_button.click()
 
     except Exception as e:
         logging.exception(f"An error occurred: {e}")
