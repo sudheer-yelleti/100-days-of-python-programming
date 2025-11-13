@@ -22,6 +22,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 web_driver = None
+FORM_SUBMIT_URL = "https://secure-retreat-92358.herokuapp.com/"
+WIKIPEDIA_URL = "https://en.wikipedia.org/wiki/Main_Page"
+PYTHON_EVENTS_URL = "https://www.python.org/events/python-events/"
 
 
 def create_webdriver():
@@ -45,7 +48,7 @@ def create_webdriver():
     return driver
 
 
-def get_event_dates_and_names(web_driver):
+def get_event_dates_and_names(driver):
     """Fetch and log upcoming Python event names and dates from python.org.
 
     This function navigates to the Python events page, waits for the list to be
@@ -54,7 +57,7 @@ def get_event_dates_and_names(web_driver):
     collected data.
 
     Args:
-        web_driver (selenium.webdriver.remote.webdriver.WebDriver): An active
+        driver (selenium.webdriver.remote.webdriver.WebDriver): An active
             Selenium WebDriver used for navigation and element lookup.
 
     Side Effects:
@@ -65,12 +68,12 @@ def get_event_dates_and_names(web_driver):
         If you need the `events` dictionary for further processing, modify the
         function to return it.
     """
-    web_driver.get("https://www.python.org/events/python-events/")
-    wait = WebDriverWait(web_driver, 10)
+    driver.get(PYTHON_EVENTS_URL)
+    wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".list-recent-events time")))
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".event-title a")))
-    event_date_elements = web_driver.find_elements(By.CSS_SELECTOR, ".list-recent-events time")
-    event_name_elements = web_driver.find_elements(By.CSS_SELECTOR, ".event-title a")
+    event_date_elements = driver.find_elements(By.CSS_SELECTOR, ".list-recent-events time")
+    event_name_elements = driver.find_elements(By.CSS_SELECTOR, ".event-title a")
 
     event_names = [event_name.text for event_name in event_name_elements]
     event_dates = [event_date.text for event_date in event_date_elements]
@@ -86,7 +89,7 @@ def get_event_dates_and_names(web_driver):
     logging.info(events)
 
 
-def wikipedia_stats(web_driver):
+def wikipedia_stats(driver):
     """Retrieve and log Wikipedia's article count from the main page.
 
     Navigates to Wikipedia's main page and locates the "Special:Statistics"
@@ -94,25 +97,39 @@ def wikipedia_stats(web_driver):
     text. Intended for demonstration purposes and does not return data.
 
     Args:
-        web_driver (selenium.webdriver.remote.webdriver.WebDriver): An active
+        driver (selenium.webdriver.remote.webdriver.WebDriver): An active
             Selenium WebDriver used for navigation and element lookup.
 
     Side Effects:
         - Navigates the provided browser to en.wikipedia.org.
         - Logs the extracted article count text, if found.
     """
-    web_driver.get("https://en.wikipedia.org/wiki/Main_Page")
+    driver.get(WIKIPEDIA_URL)
     div_id = "articlecount"
     css_selector = f"div#{div_id} > ul li a[title = 'Special:Statistics']"
-    article_count = web_driver.find_elements(By.CSS_SELECTOR, css_selector)
+    article_count = driver.find_elements(By.CSS_SELECTOR, css_selector)
     for element in article_count:
         logging.info(element.text)
 
 
+def submit_form(driver):
+    driver.get(FORM_SUBMIT_URL)
+    first_name_element = driver.find_element(By.NAME, "fName")
+    last_name_element = driver.find_element(By.NAME, "lName")
+    email_element = driver.find_element(By.NAME, "email")
+    first_name_element.send_keys("John")
+    last_name_element.send_keys("Doe")
+    email_element.send_keys("xyx@xf.com")
+    button = driver.find_element(By.CSS_SELECTOR, ".btn")
+    button.click()
 try:
     web_driver = create_webdriver()
     get_event_dates_and_names(web_driver)
     wikipedia_stats(web_driver)
+    submit_form(web_driver)
+
+
+
 except Exception as e:
     logging.error(f"An error occurred: {e}")
 finally:
