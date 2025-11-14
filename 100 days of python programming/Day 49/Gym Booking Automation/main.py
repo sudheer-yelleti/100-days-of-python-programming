@@ -1,7 +1,8 @@
 import os
+import time
 
 from selenium import webdriver
-from selenium.common import NoSuchElementException
+from selenium.common import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -14,8 +15,7 @@ booked_classes_count = 0
 waitlisted_classes_count = 0
 already_booked_count = 0
 total_tuesday_classes = 0
-
-
+processed_classes = []
 
 
 def init_driver():
@@ -33,28 +33,48 @@ def init_driver():
 browser = init_driver()
 browser.get(GYM_URL)
 
-waiter = WebDriverWait(browser, 10)
+waiter = WebDriverWait(browser, 2)
 
-# 1. Click login
-login_btn = waiter.until(EC.element_to_be_clickable((By.ID, "login-button")))
-login_btn.click()
 
-# 2. Enter credentials
-email_input = waiter.until(EC.visibility_of_element_located((By.ID, "email-input")))
-pass_input = waiter.until(EC.visibility_of_element_located((By.ID, "password-input")))
-submit_btn = waiter.until(EC.element_to_be_clickable((By.ID, "submit-button")))
+def retry(func, retries=7, description=None):
+    for i in range(retries):
+        print(f"Trying {description}. Attempt: {i + 1}")
+        try:
+            return func()
+        except TimeoutException:
+            if i == retries - 1:
+                raise
+            time.sleep(1)
 
-email_input.send_keys(USER_EMAIL)
-pass_input.send_keys(USER_PASS)
-submit_btn.click()
 
-# 3. Wait for the schedule page to load
-waiter.until(EC.presence_of_element_located((By.ID, "schedule-page")))
+def login():
+    # 1. Click login
+    login_btn = waiter.until(EC.element_to_be_clickable((By.ID, "login-button")))
+    login_btn.click()
+
+    # 2. Enter credentials
+    email_input = waiter.until(EC.visibility_of_element_located((By.ID, "email-input")))
+    pass_input = waiter.until(EC.visibility_of_element_located((By.ID, "password-input")))
+    submit_btn = waiter.until(EC.element_to_be_clickable((By.ID, "submit-button")))
+    email_input.clear()
+    email_input.send_keys(USER_EMAIL)
+    pass_input.clear()
+    pass_input.send_keys(USER_PASS)
+    submit_btn.click()
+
+    # 3. Wait for the schedule page to load
+    waiter.until(EC.presence_of_element_located((By.ID, "schedule-page")))
+
+
+def book_class(book_class):
+    book_class.click()
+    waiter.until(lambda d: book_class.text == "Booked" or book_class.text == "Waitlisted")
+
+
+retry(login, description="Logging into the website")
 
 # 4. Find a class and book it.
 day_groups = browser.find_elements(By.CSS_SELECTOR, "div[id^='day-group-']")
-
-processed_classes = []
 
 for day_el in day_groups:
     day_title = day_el.find_element(By.TAG_NAME, "h2").text
@@ -77,12 +97,12 @@ for day_el in day_groups:
                     already_booked_count += 1
                     processed_classes.append(f"[Booked] {class_info}")
                 elif book_class_button.text == "Join Waitlist":
-                    book_class_button.click()
+                    retry(lambda: book_class(book_class_button), description="Waitlisting")
                     print(f"Joined waitlist for: {class_name} on {day_title}")
                     waitlisted_classes_count += 1
                     processed_classes.append(f"[New Waitlist] {class_info}")
                 else:
-                    book_class_button.click()
+                    retry(lambda: book_class(book_class_button), description="Booking")
                     print(f"Booked {class_name} class on {day_title}")
                     booked_classes_count += 1
                     processed_classes.append(f"[New Booking] {class_info}")
@@ -91,13 +111,22 @@ total_booked = already_booked_count + booked_classes_count + waitlisted_classes_
 print(f"\n--- Total Tuesday/Thursday 6pm classes: {total_booked} ---")
 print("\n--- VERIFYING ON MY BOOKINGS PAGE ---")
 
-my_bookings_link = browser.find_element(By.LINK_TEXT, "My Bookings")
-my_bookings_link.click()
+
+def get_my_bookings():
+    my_bookings_link = browser.find_element(By.LINK_TEXT, "My Bookings")
+    my_bookings_link.click()
+    waiter.until(EC.presence_of_element_located((By.ID, "my-bookings-page")))
+
+    cards = browser.find_elements(By.CSS_SELECTOR, "div[id*='card-']")
+
+    if not cards:
+        raise TimeoutException("No cards found on my bookings page. Problem loading the page.")
+    return cards
+
+
+all_cards = get_my_bookings()
 
 verified_count = 0
-waiter.until(EC.presence_of_element_located((By.ID, "my-bookings-page")))
-
-all_cards = browser.find_elements(By.CSS_SELECTOR, "div[id*='card-']")
 for card in all_cards:
     try:
         when_paragraph = card.find_element(By.XPATH, ".//p[strong[text()='When:']]")
