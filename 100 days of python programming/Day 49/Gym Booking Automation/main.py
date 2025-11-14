@@ -160,3 +160,6 @@ else:
 print("\n--- DETAILED CLASS LIST ---")
 for class_detail in processed_classes:
     print(f"  • {class_detail}")
+
+time.sleep(10)
+browser.quit()
